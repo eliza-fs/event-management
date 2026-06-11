@@ -68,8 +68,7 @@ class Event extends Model
 
     public function getImageUrlAttribute(): ?string
     {
-        return StorageImage::url($this->image)
-            ?? config('volunteerhub.org_default_image');
+        return StorageImage::url($this->image);
     }
 
     public function isFree(): bool
@@ -91,11 +90,32 @@ class Event extends Model
         return max(0, $this->quota - $this->approved_count);
     }
 
-    // Cek apakah masih bisa daftar
+    public function registrationDeadline(): ?\Carbon\Carbon
+    {
+        return $this->start_date?->copy()->startOfDay()->subDays(3);
+    }
+
+    public function isWithinRegistrationPeriod(): bool
+    {
+        $deadline = $this->registrationDeadline();
+
+        return $deadline !== null && now()->lt($deadline);
+    }
+
+    // Cek apakah masih bisa daftar (H-3 + kuota)
     public function isOpen(): bool
     {
-        return now()->lte($this->start_date)
+        return $this->isWithinRegistrationPeriod()
             && $this->remaining_quota > 0;
+    }
+
+    public function registrationClosedReason(): string
+    {
+        if ($this->remaining_quota <= 0) {
+            return 'Kuota sudah penuh atau pendaftaran ditutup.';
+        }
+
+        return 'Pendaftaran ditutup 3 hari sebelum acara dimulai.';
     }
 
     // Scope filter berdasarkan kategori
