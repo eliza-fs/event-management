@@ -20,8 +20,8 @@ class StorageFileController extends Controller
             abort(404);
         }
 
-        // Only ever serve from the configured "public" disk.
-        if (! Storage::disk('public')->exists($normalized)) {
+        // Resolve on public disk (migrates legacy public/* copies when needed).
+        if (! StorageImage::exists($normalized)) {
             abort(404);
         }
 
