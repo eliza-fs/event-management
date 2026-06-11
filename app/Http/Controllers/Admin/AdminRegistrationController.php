@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Concerns\ScopesOrganizationEvents;
 use App\Http\Controllers\Controller;
 use App\Models\EventRegistration;
-use App\Support\StorageImage;
 
 class AdminRegistrationController extends Controller
 {
@@ -32,7 +31,7 @@ class AdminRegistrationController extends Controller
                 ? 'Gratis'
                 : 'Rp'.number_format((float) ($r->payment?->amount ?? $r->event->price ?? 0), 0, ',', '.'),
             'method' => $r->payment?->paymentMethod?->name ?? ($r->event->isFree() ? '-' : '-'),
-            'proofImg' => StorageImage::url($r->payment?->proof_image),
+            'proofImg' => $r->payment?->proof_image_url,
             'status' => $this->statusLabel($r),
             'isFinal' => in_array($r->status, ['approved', 'rejected', 'cancelled'], true),
             'email' => $r->participant->email ?? '-',
