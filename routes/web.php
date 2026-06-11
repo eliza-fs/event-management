@@ -21,7 +21,8 @@ Route::get('/', fn () => redirect()->route('login'));
 // Serve uploaded files from `storage/app/public` via Laravel.
 // Useful when `public/storage` symlink is missing/broken.
 Route::get('/storage/{path}', [StorageFileController::class, 'show'])
-    ->where('path', '.*');
+    ->where('path', '.*')
+    ->name('storage.serve');
 
 Route::get('/home', [EventController::class, 'index'])->name('home');
 Route::get('/events/{id}', [EventController::class, 'show'])->name('event.detail');
