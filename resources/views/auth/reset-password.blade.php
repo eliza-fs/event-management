@@ -12,7 +12,7 @@
 <body class="bg-[#f5f7fa] font-['Lexend'] min-h-screen flex">
     <div class="hidden lg:flex lg:w-1/2 bg-[#2f7f79] text-white p-12 flex-col justify-between">
         <div class="flex items-center gap-3">
-            <img src="{{ asset(config('volunteerhub.logo_url')) }}" alt="Logo" class="h-10 w-10 object-contain rounded-lg"/>
+            <img src="{{ config('volunteerhub.logo_url') }}" alt="Logo" class="h-10 w-10 object-contain rounded-lg"/>
             <span class="text-2xl font-bold">VolunteerHub</span>
         </div>
         <p class="text-3xl font-extrabold leading-tight">Masukkan OTP dan password baru Anda.</p>
@@ -21,7 +21,7 @@
     <div class="w-full lg:w-1/2 flex items-center justify-center p-6">
         <div class="w-full max-w-md bg-white rounded-3xl shadow-xl border p-8">
             <div class="flex items-center gap-3 mb-6 lg:hidden">
-                <img src="{{ asset(config('volunteerhub.logo_url')) }}" alt="Logo" class="h-9 w-9 object-contain"/>
+                <img src="{{ config('volunteerhub.logo_url') }}" alt="Logo" class="h-9 w-9 object-contain"/>
                 <span class="font-bold text-primary">VolunteerHub</span>
             </div>
             <h2 class="text-2xl font-extrabold mb-1">Atur Ulang Password</h2>
