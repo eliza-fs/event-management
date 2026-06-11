@@ -3,89 +3,56 @@
 namespace App\Http\Controllers;
 
 use App\Models\Payment;
-use App\Models\Refund;
+use App\Support\StorageImage;
 use Illuminate\Http\Request;
 
-class RefundController extends Controller
+class PaymentController extends Controller
 {
-    public function showForm()
+    public function history()
     {
-        $eligiblePayments = Payment::with([
-            'eventRegistration.event',
+        $payments = Payment::with([
+            'eventRegistration.event.organization',
+            'eventRegistration.participant',
             'paymentMethod',
         ])
-            ->where('status', 'approved')
-            ->whereHas('eventRegistration.participant', fn ($q) => $q->where('user_id', auth()->id()))
-            ->whereDoesntHave('refund')
+            ->whereHas('eventRegistration.participant', function ($q) {
+                $q->where('user_id', auth()->id());
+            })
             ->latest()
-            ->get();
+            ->get()
+            ->map(fn ($payment) => (object) [
+                'transaction_name' => $payment->eventRegistration->event->title ?? '-',
+                'date_formatted' => ($payment->paid_at ?? $payment->created_at)?->format('d M Y') ?? '-',
+                'amount' => (float) $payment->amount,
+                'method' => $payment->paymentMethod->name ?? '-',
+                'registration_status' => $payment->eventRegistration->status ?? '-',
+                'status' => match ($payment->status) {
+                    'approved' => 'success',
+                    'pending' => 'pending',
+                    default => 'failed',
+                },
+            ]);
 
-        return view('user.refund-request', compact('eligiblePayments'));
+        return view('user.payment-history', compact('payments'));
     }
 
-    public function store(Request $request)
+    public function uploadProof(Request $request, $paymentId)
     {
-        $validated = $request->validate([
-            'payment_id' => 'required|exists:payments,id',
-            'reason' => 'required|string|max:255',
-            'description' => 'required|string',
-            'bank_name' => 'required|string|max:255',
-            'account_number' => ['required', 'regex:/^\d+$/', 'max:30'],
-            'account_holder' => 'required|string|max:255',
-        ], [
-            'required' => 'Wajib Diisi',
-            'description.required' => 'Kolom ini tidak boleh kosong',
+        $request->validate([
+            'proof_image' => 'required|image|max:5120',
         ]);
 
-        $payment = Payment::with('eventRegistration.participant')
-            ->findOrFail($validated['payment_id']);
+        $payment = Payment::whereHas('eventRegistration.participant', function ($q) {
+            $q->where('user_id', auth()->id());
+        })->findOrFail($paymentId);
 
-        abort_if(
-            $payment->eventRegistration->participant->user_id !== auth()->id(),
-            403
-        );
+        $path = StorageImage::storeUploadedFile($request->file('proof_image'), 'payment_proofs');
 
-        if ($payment->status !== 'approved') {
-            return back()->with('error', 'Refund hanya bisa diajukan untuk pembayaran yang sudah terverifikasi.');
-        }
-
-        if ($payment->refund) {
-            return back()->with('error', 'Pembayaran ini sudah memiliki pengajuan refund.');
-        }
-
-        Refund::create([
-            'payment_id' => $payment->id,
-            'event_registration_id' => $payment->event_registration_id,
-            'user_id' => auth()->id(),
-            'reason' => $validated['reason'],
-            'description' => $validated['description'],
-            'bank_name' => $validated['bank_name'],
-            'account_number' => $validated['account_number'],
-            'account_holder' => $validated['account_holder'],
-            'amount' => $payment->amount,
-            'status' => 'pending',
+        $payment->update([
+            'proof_image' => $path,
+            'paid_at' => now(),
         ]);
 
-        return redirect()->route('refund.status')
-            ->with('success', 'Pengajuan refund berhasil dikirim.');
-    }
-
-    public function status()
-    {
-        $refunds = Refund::with(['payment.eventRegistration.event'])
-            ->where('user_id', auth()->id())
-            ->latest()
-            ->get();
-
-        $totalRefunds = $refunds->count();
-        $totalProcessed = $refunds->whereIn('status', ['pending', 'approved'])->sum('amount');
-        $totalApproved = $refunds->where('status', 'approved')->sum('amount');
-
-        return view('user.refund-status', compact(
-            'refunds',
-            'totalRefunds',
-            'totalProcessed',
-            'totalApproved'
-        ));
+        return back()->with('success', 'Bukti pembayaran berhasil diunggah.');
     }
 }
