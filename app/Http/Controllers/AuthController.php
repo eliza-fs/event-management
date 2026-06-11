@@ -141,10 +141,10 @@ class AuthController extends Controller
             'password' => ['required', 'confirmed', new PasswordPolicy],
             'org_name' => 'required|string|max:255',
             'organization_category_id' => 'required|exists:organization_categories,id',
-            'description' => 'required|string|max:1000',
-            'phone' => ['required', 'regex:/^\d{11,13}$/'],
+            'description' => 'nullable|string',
+            'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',
-        ], $this->adminRegisterMessages());
+        ], $this->validationMessages());
 
         $user = User::create([
             'name' => $request->name,
@@ -172,21 +172,14 @@ class AuthController extends Controller
     private function validationMessages(): array
     {
         return [
-            'required' => 'Wajib Diisi',
+            'required' => 'Required.',
+            'email.required' => 'Required.',
             'email.email' => 'Format email tidak valid.',
             'email.unique' => 'Email sudah terdaftar.',
+            'password.required' => 'Required.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
+            'name.required' => 'Required.',
+            'org_name.required' => 'Required.',
         ];
-    }
-
-    private function adminRegisterMessages(): array
-    {
-        return array_merge($this->validationMessages(), [
-            'description.required' => 'Deskripsi wajib diisi.',
-            'phone.required' => 'Nomor telepon wajib diisi.',
-            'phone.regex' => 'Nomor telepon harus 11–13 digit angka.',
-            'org_name.required' => 'Nama organisasi wajib diisi.',
-            'organization_category_id.required' => 'Kategori organisasi wajib dipilih.',
-        ]);
     }
 }
