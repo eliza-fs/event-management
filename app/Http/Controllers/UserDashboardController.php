@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\EventRegistration;
+use App\Support\StorageImage;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Storage;
 
 class UserDashboardController extends Controller
 {
@@ -49,35 +49,25 @@ class UserDashboardController extends Controller
         $user = auth()->user();
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
             'nickname' => 'nullable|string|max:255',
             'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
             'phone' => ['nullable', 'regex:/^\d{10,13}$/'],
             'volunteer_status' => 'nullable|string|max:255',
             'city' => 'nullable|string|max:255',
             'profile_image' => 'nullable|image|mimes:png,jpeg,jpg|max:5120',
-        ], [
-            'required' => 'Wajib Diisi',
-            'name.required' => 'Nama lengkap wajib diisi.',
-            'email.required' => 'Email wajib diisi.',
-            'email.email' => 'Format email tidak valid.',
-            'email.unique' => 'Email sudah digunakan.',
-            'phone.regex' => 'Nomor telepon harus 10–13 digit angka.',
-            'profile_image.image' => 'File harus berupa gambar.',
-            'profile_image.max' => 'Ukuran foto tidak boleh melebihi 5120 KB.',
-        ]);
+        ], ['required' => 'Required.']);
 
         if ($request->hasFile('profile_image')) {
-            $storedPath = $request->file('profile_image')
-                ->store('profile_images', 'public');
-
-            // Some filesystem errors can fail silently depending on disk config.
-            // Only persist the DB path when the file is actually there.
-            if (! $storedPath || ! Storage::disk('public')->exists($storedPath)) {
+            try {
+                $validated['profile_image'] = StorageImage::storeUploadedFile(
+                    $request->file('profile_image'),
+                    'profile_images'
+                );
+                StorageImage::delete($user->profile_image);
+            } catch (\RuntimeException) {
                 return back()->withInput()->with('error', 'Gagal menyimpan foto profil.');
             }
-
-            $validated['profile_image'] = $storedPath;
         } else {
             unset($validated['profile_image']);
         }
