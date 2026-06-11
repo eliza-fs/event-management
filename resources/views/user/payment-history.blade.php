@@ -12,6 +12,11 @@
                 <p class="text-[#6b806c] text-xs">Kelola kontribusimu</p>
             </div>
             <nav class="flex flex-row lg:flex-col overflow-x-auto lg:overflow-visible gap-1 pb-2 lg:pb-0">
+                <a href="{{ route('user.profile.history') }}"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#6b806c] hover:bg-gray-100 transition-all whitespace-nowrap text-sm">
+                    <span class="material-symbols-outlined text-lg">dashboard</span>
+                    <p class="font-medium">Ringkasan</p>
+                </a>
                 <a href="{{ route('user.activities.status') }}"
                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#6b806c] hover:bg-gray-100 transition-all whitespace-nowrap text-sm">
                     <span class="material-symbols-outlined text-lg">calendar_today</span>
