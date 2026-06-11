@@ -100,9 +100,14 @@
                      class="event-card group cursor-pointer bg-white rounded-[24px] overflow-hidden border border-gray-100 hover:shadow-lg hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between">
                     <div>
                         <div class="h-52 w-full relative overflow-hidden bg-slate-50">
-                            <img src="{{ $event->image_url }}"
-                                 alt="{{ $event->title }}"
-                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/>
+                            <x-event-image
+                                :url="$event->image_url"
+                                :has-image="$event->has_stored_image"
+                                :alt="$event->title"
+                                class="w-full h-full group-hover:scale-105 transition-transform duration-500"
+                                img-class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                placeholder-class="w-full h-full"
+                            />
                             <div class="absolute top-4 left-4 flex flex-col items-start gap-1.5 z-10">
                                 <span class="bg-white text-[#29706a] font-extrabold text-[10px] uppercase tracking-wider px-3.5 py-1.5 rounded-lg shadow-sm border border-black/5">{{ $event->category->name ?? 'Kategori' }}</span>
                                 <span class="bg-[#2f7f79] text-white font-extrabold text-[10px] uppercase tracking-wider px-3.5 py-1.5 rounded-lg shadow-sm">{{ $event->eventType->name ?? 'Onsite' }}</span>
