@@ -118,7 +118,14 @@
                 <template x-for="event in filteredEvents()" :key="event.id">
                     <div @click="selectedEvent = event" class="group bg-white rounded-2xl overflow-hidden border border-zinc-100 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 flex flex-col cursor-pointer transform hover:-translate-y-1">
                         <div class="relative h-48 overflow-hidden">
-                            <img :src="event.img" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                            <template x-if="event.hasImg">
+                                <img :src="event.img" :alt="event.title" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                            </template>
+                            <template x-if="!event.hasImg">
+                                <div class="w-full h-full bg-gradient-to-br from-primary/25 to-primary/55 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-white/80 text-5xl" style="font-variation-settings: 'FILL' 1">event</span>
+                                </div>
+                            </template>
                             <div class="absolute top-3 left-3 flex flex-col gap-2">
                                 <span class="px-3 py-1 bg-white/90 backdrop-blur text-[10px] font-black uppercase rounded-lg text-primary shadow-sm" x-text="event.subCat"></span>
                                 <span class="px-3 py-1 bg-primary text-white text-[10px] font-black uppercase rounded-lg shadow-sm" x-text="event.type"></span>
@@ -158,7 +165,14 @@
     <div x-show="selectedEvent" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div @click="selectedEvent = null" class="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm"></div>
         <div class="relative bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl overflow-y-auto max-h-[90vh]">
-            <img :src="selectedEvent?.img" class="w-full h-64 object-cover">
+            <template x-if="selectedEvent?.hasImg">
+                <img :src="selectedEvent.img" :alt="selectedEvent.title" class="w-full h-64 object-cover">
+            </template>
+            <template x-if="selectedEvent && !selectedEvent.hasImg">
+                <div class="w-full h-64 bg-gradient-to-br from-primary/25 to-primary/55 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-white/80 text-6xl" style="font-variation-settings: 'FILL' 1">event</span>
+                </div>
+            </template>
             <button type="button" @click="selectedEvent = null" class="absolute top-4 right-4 z-10 bg-black/50 text-white p-2 rounded-full hover:bg-black transition-colors flex items-center justify-center">
                 <span class="material-symbols-outlined text-white text-2xl leading-none">close</span>
             </button>
@@ -191,8 +205,15 @@
                 </div>
                 <p class="text-zinc-600 leading-relaxed mb-8" x-text="selectedEvent?.desc"></p>
                 <div class="flex gap-4">
-                    {{-- TODO: ganti dengan route Laravel nanti --}}
-                    <a :href="'{{ url('/events') }}/' + selectedEvent?.id" class="flex-1 py-4 bg-primary text-white font-black rounded-2xl shadow-xl hover:scale-[1.02] transition flex items-center justify-center">Daftar Kegiatan</a>
+                    <template x-if="selectedEvent?.registrationOpen">
+                        <a :href="'{{ url('/events') }}/' + selectedEvent?.id + '/register'" class="flex-1 py-4 bg-primary text-white font-black rounded-2xl shadow-xl hover:scale-[1.02] transition flex items-center justify-center">Daftar Sekarang</a>
+                    </template>
+                    <template x-if="selectedEvent && !selectedEvent.registrationOpen">
+                        <div class="flex-1 py-4 bg-gray-200 text-gray-500 font-black rounded-2xl text-center cursor-not-allowed">
+                            Pendaftaran Ditutup
+                            <p class="text-xs font-semibold mt-1 text-red-600">Pendaftaran ditutup 3 hari sebelum acara dimulai.</p>
+                        </div>
+                    </template>
                 </div>
             </div>
         </div>
