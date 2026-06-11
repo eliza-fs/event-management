@@ -38,34 +38,20 @@ class AdminProfileController extends Controller
 
         $validated = $request->validate([
             'org_name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'phone' => ['nullable', 'regex:/^\d{11,13}$/'],
+            'description' => 'nullable|string',
+            'phone' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
-            'address' => 'nullable|string|max:500',
+            'address' => 'nullable|string',
             'image' => 'nullable|image|mimes:png,jpeg,jpg|max:5120',
-        ], [
-            'required' => 'Wajib Diisi',
-            'org_name.required' => 'Nama organisasi wajib diisi.',
-            'phone.regex' => 'Nomor telepon harus 11–13 digit angka.',
-            'email.email' => 'Format email tidak valid.',
-            'image.image' => 'File harus berupa gambar.',
-            'image.max' => 'Ukuran gambar tidak boleh melebihi 5120 KB.',
-        ]);
+        ], ['required' => 'Required.']);
 
         if ($request->hasFile('image')) {
-            $storedPath = $request->file('image')->store('organizations', 'public');
-
-            if (! $storedPath || ! Storage::disk('public')->exists($storedPath)) {
+            try {
+                $validated['image'] = StorageImage::storeUploadedFile($request->file('image'), 'organizations');
+                StorageImage::delete($org->image);
+            } catch (\RuntimeException) {
                 return back()->withInput()->with('error', 'Gagal menyimpan gambar organisasi.');
             }
-
-            // Only delete the old file after the new one is safely stored.
-            $old = StorageImage::normalize($org->image);
-            if ($old && Storage::disk('public')->exists($old)) {
-                Storage::disk('public')->delete($old);
-            }
-
-            $validated['image'] = $storedPath;
         } else {
             unset($validated['image']);
         }
