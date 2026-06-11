@@ -2,12 +2,7 @@
 @section('title', 'Support & Legal | VolunteerHub')
 
 @section('content')
-<div x-data="{ activeFaq: null, activeTab: 'faq' }" x-init="
-    const hash = window.location.hash.replace('#', '');
-    if (hash === 'privacy' || hash === 'terms' || hash === 'contact' || hash === 'faq') {
-        activeTab = hash === 'privacy' ? 'terms' : hash;
-    }
-">
+<div x-data="{ activeFaq: null, activeTab: 'faq' }">
 
     {{-- Page Header --}}
     <div class="pt-12 pb-8 px-6 max-w-7xl mx-auto">
@@ -109,7 +104,7 @@
                         ];
                     @endphp
                     @foreach($terms as [$title, $body])
-                    <div class="group scroll-mt-28" @if($title === 'Kebijakan Privasi') id="privacy" @endif>
+                    <div class="group" @if($title === 'Kebijakan Privasi') id="privacy" @endif>
                         <h3 class="text-lg md:text-xl font-black text-primary mb-3 md:mb-4 flex items-center gap-3">
                             <span class="w-1.5 md:w-2 h-5 md:h-6 bg-primary rounded-full"></span>{{ $title }}
                         </h3>
