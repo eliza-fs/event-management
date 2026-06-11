@@ -156,15 +156,13 @@
 
               <div class="space-y-1">
                 <label class="text-xs sm:text-sm font-bold font-display text-slate-700" for="description">Deskripsi</label>
-                <textarea id="description" name="description" rows="2" required class="w-full rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-primary p-3 text-sm @error('description') border-red-500 @enderror">{{ old('description') }}</textarea>
-                @error('description')<p class="text-red-600 text-xs font-semibold">{{ $message }}</p>@enderror
+                <textarea id="description" name="description" rows="2" class="w-full rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-primary p-3 text-sm">{{ old('description') }}</textarea>
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div class="space-y-1">
                   <label class="text-xs sm:text-sm font-bold font-display text-slate-700" for="phone">Telepon</label>
-                  <input id="phone" name="phone" type="text" value="{{ old('phone') }}" required inputmode="numeric" pattern="\d{11,13}" minlength="11" maxlength="13" class="w-full rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-primary p-3 text-sm @error('phone') border-red-500 @enderror" />
-                  @error('phone')<p class="text-red-600 text-xs font-semibold">{{ $message }}</p>@enderror
+                  <input id="phone" name="phone" type="text" value="{{ old('phone') }}" class="w-full rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-primary p-3 text-sm" />
                 </div>
                 <div class="space-y-1">
                   <label class="text-xs sm:text-sm font-bold font-display text-slate-700" for="address">Alamat</label>
@@ -219,24 +217,9 @@
             const confirmPassword = confirmPasswordInput.value;
             const agreePledge = agreePledgeCheckbox.checked;
 
-            const description = document.getElementById('description')?.value?.trim();
-            const phone = document.getElementById('phone')?.value?.trim();
-
             if (!agreePledge) {
               e.preventDefault();
               alert('Anda harus menyetujui persyaratan kerahasiaan data!');
-              return;
-            }
-
-            if (!description) {
-              e.preventDefault();
-              alert('Deskripsi wajib diisi.');
-              return;
-            }
-
-            if (!phone || !/^\d{11,13}$/.test(phone)) {
-              e.preventDefault();
-              alert('Nomor telepon wajib diisi dan harus 11–13 digit angka.');
               return;
             }
 
