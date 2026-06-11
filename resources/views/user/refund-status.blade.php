@@ -1,16 +1,16 @@
 @extends('layouts.app')
-@section('title', 'Status Pengembalian | VolunteerHub')
+@section('title', 'Status Refund | VolunteerHub')
 
 @section('content')
 <main class="flex-grow max-w-6xl mx-auto py-10 px-6 w-full">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-            <h1 class="text-4xl md:text-5xl font-black">Status Pengembalian</h1>
-            <p class="text-gray-500 mt-2">Pantau dan kelola pengajuan pengembalian kegiatan Anda.</p>
+            <h1 class="text-4xl md:text-5xl font-black">Status Refund</h1>
+            <p class="text-gray-500 mt-2">Pantau dan kelola pengajuan refund kegiatan Anda.</p>
         </div>
         <a href="{{ route('refund.request') }}"
            class="inline-block bg-[#2F7F79] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#256b66] transition whitespace-nowrap">
-            Ajukan Pengembalian
+            Ajukan Refund
         </a>
     </div>
 
@@ -20,11 +20,11 @@
             <h2 class="text-4xl font-black mt-2">{{ $totalRefunds ?? 0 }}</h2>
         </div>
         <div class="bg-white rounded-2xl p-6 shadow-sm border">
-            <p class="text-sm text-gray-500 font-semibold">Pengembalian Diproses</p>
+            <p class="text-sm text-gray-500 font-semibold">Refund Diproses</p>
             <h2 class="text-4xl font-black mt-2">Rp{{ number_format($totalProcessed ?? 0, 0, ',', '.') }}</h2>
         </div>
         <div class="bg-white rounded-2xl p-6 shadow-sm border">
-            <p class="text-sm text-gray-500 font-semibold">Pengembalian Disetujui</p>
+            <p class="text-sm text-gray-500 font-semibold">Refund Disetujui</p>
             <h2 class="text-4xl font-black mt-2">Rp{{ number_format($totalApproved ?? 0, 0, ',', '.') }}</h2>
         </div>
     </div>
@@ -72,7 +72,7 @@
                     </tr>
                 @empty
                     <tr class="border-t">
-                        <td colspan="5" class="px-6 py-10 text-center text-gray-500">Belum ada pengajuan pengembalian.</td>
+                        <td colspan="5" class="px-6 py-10 text-center text-gray-500">Belum ada pengajuan refund.</td>
                     </tr>
                 @endforelse
             </tbody>
