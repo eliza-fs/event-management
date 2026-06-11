@@ -1,11 +1,11 @@
 @extends('layouts.app')
-@section('title', 'Ajukan Pengembalian | VolunteerHub')
+@section('title', 'Ajukan Refund | VolunteerHub')
 
 @section('content')
 <main class="flex-grow max-w-3xl mx-auto py-12 px-6 w-full">
     <div class="bg-white rounded-3xl shadow-xl p-8 border">
-        <h1 class="text-4xl font-black mb-2">Ajukan Pengembalian</h1>
-        <p class="text-gray-500 mb-8">Lengkapi form pengembalian berikut.</p>
+        <h1 class="text-4xl font-black mb-2">Ajukan Refund</h1>
+        <p class="text-gray-500 mb-8">Lengkapi form refund berikut.</p>
 
         @if(session('success'))
             <div class="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
@@ -42,11 +42,11 @@
                     @endforeach
                 </select>
                 @if($eligiblePayments->isEmpty())
-                    <p class="text-xs text-amber-600 mt-2">Tidak ada pembayaran terverifikasi yang dapat diajukan pengembalian.</p>
+                    <p class="text-xs text-amber-600 mt-2">Tidak ada pembayaran terverifikasi yang dapat diajukan refund.</p>
                 @endif
             </div>
             <div>
-                <label class="block font-semibold mb-2">Alasan Pengembalian</label>
+                <label class="block font-semibold mb-2">Alasan Refund</label>
                 <select name="reason" required class="w-full border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#2F7F79]">
                     <option value="">Pilih alasan</option>
                     <option value="Bentrok Jadwal" @selected(old('reason') === 'Bentrok Jadwal')>Bentrok Jadwal</option>
@@ -56,9 +56,8 @@
             </div>
             <div>
                 <label class="block font-semibold mb-2">Detail Tambahan</label>
-                <textarea name="description" rows="4" placeholder="Jelaskan alasan pengembalian..." required
-                          class="w-full border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#2F7F79] @error('description') border-red-500 @enderror">{{ old('description') }}</textarea>
-                @error('description')<p class="text-red-500 text-xs mt-1 font-semibold">{{ $message }}</p>@enderror
+                <textarea name="description" rows="4" placeholder="Jelaskan alasan refund..." required
+                          class="w-full border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#2F7F79]">{{ old('description') }}</textarea>
             </div>
             <div class="grid md:grid-cols-2 gap-4">
                 <div>
@@ -82,7 +81,7 @@
             <div class="pt-4">
                 <button type="submit" @disabled($eligiblePayments->isEmpty())
                         class="w-full bg-[#2F7F79] text-white font-bold py-3 rounded-xl hover:bg-[#256b66] transition disabled:opacity-50">
-                    Kirim Pengajuan
+                    Kirim Refund
                 </button>
             </div>
         </form>
