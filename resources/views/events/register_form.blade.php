@@ -51,11 +51,20 @@
     .input-error + .error-text {
         display: block;
     }
+
+    #copy-toast.show {
+        display: block;
+        animation: fadeIn 0.2s ease-out;
+    }
 </style>
 @endpush
 
 @section('content')
 {{-- SUCCESS MODAL --}}
+<div id="copy-toast" class="fixed top-6 left-1/2 -translate-x-1/2 z-[110] hidden bg-[#2F7F79] text-white text-sm font-bold px-5 py-3 rounded-xl shadow-lg">
+    Nomor rekening berhasil disalin
+</div>
+
 <div id="success-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/60 backdrop-blur-sm px-4">
     <div class="bg-white p-8 rounded-2xl max-w-md w-full text-center shadow-2xl border border-white/10">
         <div id="modal-icon-container" class="size-20 bg-[#4CAF50]/20 text-[#4CAF50] rounded-full flex items-center justify-center mx-auto mb-6">
@@ -84,6 +93,9 @@
             @if(session('error'))
                 <div class="mb-4 bg-red-50 border border-red-200 rounded-xl p-4 text-red-700 text-sm font-bold">{{ session('error') }}</div>
             @endif
+            @error('registration')
+                <div class="mb-4 bg-red-50 border border-red-200 rounded-xl p-4 text-red-700 text-sm font-bold">{{ $message }}</div>
+            @enderror
 
             <form method="POST" action="{{ route('event.register.post', $event->id) }}" enctype="multipart/form-data" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 @csrf
@@ -197,7 +209,14 @@
                 {{-- SIDEBAR --}}
                 <div class="lg:col-span-1">
                     <div class="sticky top-24 bg-white rounded-xl border border-[#dee3de] overflow-hidden shadow-sm">
-                        <div class="w-full h-40 bg-cover bg-center bg-slate-200" style="background-image: url('{{ $event->image_url }}');"></div>
+                        <x-event-image
+                            :url="$event->image_url"
+                            :has-image="$event->has_stored_image"
+                            :alt="$event->title"
+                            class="w-full h-40"
+                            img-class="w-full h-40 object-cover"
+                            placeholder-class="w-full h-40"
+                        />
                         <div class="p-6">
                             <h3 class="text-lg font-bold mb-4">Ringkasan Registrasi</h3>
                             <div class="space-y-4 mb-6 text-sm">
@@ -237,13 +256,55 @@
             box.classList.add('hidden');
             return;
         }
+        const accountNumber = option.dataset.accountNumber || '';
         content.innerHTML = `
             <div class="flex justify-between mb-1"><span>Metode:</span><span class="font-bold">${option.dataset.name}</span></div>
             <div class="flex justify-between mb-1"><span>Pemilik:</span><span class="font-bold">${option.dataset.accountName || '-'}</span></div>
-            <div class="flex justify-between mb-1"><span>Nomor:</span><span class="font-bold">${option.dataset.accountNumber || '-'}</span></div>
+            <div class="flex justify-between items-center mb-1 gap-2">
+                <span>Nomor:</span>
+                <span class="flex items-center gap-2 min-w-0">
+                    <span class="font-bold truncate" id="account-number-value">${accountNumber || '-'}</span>
+                    ${accountNumber ? `<button type="button" id="copy-account-btn" data-account="${accountNumber}" class="shrink-0 px-2.5 py-1 text-xs font-bold rounded-lg bg-[#2F7F79] text-white hover:bg-[#266964] transition-colors">Salin</button>` : ''}
+                </span>
+            </div>
             <p class="text-xs text-[#6b806c] mt-2">${option.dataset.instructions || ''}</p>
         `;
+        const copyBtn = document.getElementById('copy-account-btn');
+        if (copyBtn) {
+            copyBtn.addEventListener('click', () => copyAccountNumber(copyBtn.dataset.account));
+        }
         box.classList.remove('hidden');
+    }
+
+    function copyAccountNumber(accountNumber) {
+        const onSuccess = () => {
+            const toast = document.getElementById('copy-toast');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        };
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(accountNumber).then(onSuccess).catch(() => fallbackCopy(accountNumber, onSuccess));
+        } else {
+            fallbackCopy(accountNumber, onSuccess);
+        }
+    }
+
+    function fallbackCopy(text, onSuccess) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'absolute';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            onSuccess();
+        } catch (e) {
+            alert('Gagal menyalin nomor rekening.');
+        }
+        document.body.removeChild(textarea);
     }
 
     function handleFileUpload(input) {
