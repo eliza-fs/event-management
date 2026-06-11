@@ -29,7 +29,7 @@ class AdminPaymentController extends Controller
             'amount' => 'Rp'.number_format((float) $p->amount, 0, ',', '.'),
             'method' => $p->paymentMethod->name ?? '-',
             'status' => $this->paymentStatusLabel($p->status),
-            'proofImg' => $p->proof_image ? asset('storage/'.$p->proof_image) : null,
+            'proofImg' => $p->proof_image_url,
         ]);
 
         return view('admin.payments.index', compact('payments', 'paymentsJson'));
