@@ -57,7 +57,12 @@
                             <div class="h-28 relative bg-slate-100">
                                 @if($org->has_stored_image)
                                     <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                         src="{{ $org->image_url }}" alt="{{ $org->org_name }}"/>
+                                         src="{{ $org->image_url }}" alt="{{ $org->org_name }}"
+                                         onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex';"/>
+                                    <div class="w-full h-full hidden items-center justify-center text-3xl font-black text-white"
+                                         style="background-color: {{ $org->avatar_color }}">
+                                        {{ $org->avatar_initials }}
+                                    </div>
                                 @else
                                     <div class="w-full h-full flex items-center justify-center text-3xl font-black text-white"
                                          style="background-color: {{ $org->avatar_color }}">
