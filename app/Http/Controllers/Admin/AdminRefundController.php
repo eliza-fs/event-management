@@ -6,6 +6,7 @@ use App\Http\Controllers\Concerns\ScopesOrganizationEvents;
 use App\Http\Controllers\Controller;
 use App\Models\Refund;
 use App\Models\RefundLog;
+use App\Support\StorageImage;
 use Illuminate\Http\Request;
 
 class AdminRefundController extends Controller
@@ -31,7 +32,7 @@ class AdminRefundController extends Controller
             'amount' => 'Rp'.number_format((float) $r->amount, 0, ',', '.'),
             'bank' => $r->bank_name.' • '.$r->account_number,
             'status' => $this->statusLabel($r->status),
-            'transferProof' => $r->transfer_proof ? asset('storage/'.$r->transfer_proof) : null,
+            'transferProof' => StorageImage::url($r->transfer_proof),
         ]);
 
         return view('admin.refunds.index', compact('refunds', 'refundsJson'));
@@ -46,8 +47,7 @@ class AdminRefundController extends Controller
 
         $refund = $this->findOrganizationRefund($id);
 
-        $proofPath = $request->file('transfer_proof')
-            ->store('refund_proofs', 'public');
+        $proofPath = StorageImage::storeUploadedFile($request->file('transfer_proof'), 'refund_proofs');
 
         $refund->update([
             'status' => 'approved',
