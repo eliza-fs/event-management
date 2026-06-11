@@ -86,7 +86,7 @@
                             && $event && ! $event->isFree()
                             && ($registration->payment?->status === 'pending' || ! $registration->payment);
                         $statusLabel = match (true) {
-                            $registration->status === 'cancelled' => 'Dibatalkan (Pengembalian)',
+                            $registration->status === 'cancelled' => 'Dibatalkan (Refund)',
                             $isFinished => 'Selesai Berpartisipasi',
                             $registration->status === 'approved' => 'Terdaftar & Aktif',
                             $registration->status === 'rejected' => 'Ditolak',
