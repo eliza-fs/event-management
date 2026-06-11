@@ -2,7 +2,12 @@
 @section('title', ($event->title ?? 'Detail Event') . ' | VolunteerHub')
 
 @section('content')
+@php $canRegister = $event->isOpen(); @endphp
 <main class="mx-auto max-w-[1200px] w-full px-4 py-6 md:px-6 lg:px-10">
+
+    @if(session('error'))
+        <div class="mb-4 bg-red-50 border border-red-200 rounded-xl p-4 text-red-700 text-sm font-bold">{{ session('error') }}</div>
+    @endif
 
     {{-- Breadcrumb --}}
     <nav class="flex flex-wrap gap-2 mb-4 text-xs md:text-sm">
@@ -15,9 +20,14 @@
 
     {{-- Banner Image --}}
     <div class="mb-6 md:mb-8">
-        <div class="w-full bg-center bg-no-repeat bg-cover rounded-2xl min-h-[240px] sm:min-h-[350px] md:min-h-[420px] shadow-sm bg-gray-200"
-             style="background-image: url('{{ $event->image_url ?? 'https://images.unsplash.com/photo-1559027615-cd762186c6cb?q=80&w=1600&auto=format&fit=crop' }}')">
-        </div>
+        <x-event-image
+            :url="$event->image_url"
+            :has-image="$event->has_stored_image"
+            :alt="$event->title"
+            class="w-full rounded-2xl min-h-[240px] sm:min-h-[350px] md:min-h-[420px] shadow-sm overflow-hidden"
+            img-class="w-full min-h-[240px] sm:min-h-[350px] md:min-h-[420px] object-cover"
+            placeholder-class="w-full min-h-[240px] sm:min-h-[350px] md:min-h-[420px]"
+        />
     </div>
 
     <div class="flex flex-col lg:flex-row gap-6 md:gap-8">
@@ -88,8 +98,9 @@
                 <div>
                     <p class="text-xs font-bold text-amber-800">Batas Pendaftaran</p>
                     <p class="text-sm font-bold text-amber-700">
-                        {{ $event->start_date?->format('d M Y') ?? '-' }}
+                        {{ $event->registrationDeadline()?->format('d M Y') ?? '-' }}
                     </p>
+                    <p class="text-xs text-amber-600 mt-1">Pendaftaran ditutup 3 hari sebelum acara dimulai.</p>
                 </div>
             </div>
         </div>
@@ -119,10 +130,18 @@
                     </div>
                 </div>
 
-                <a href="{{ auth()->check() && auth()->user()->role === 'user' ? route('event.register.form', $event->id) : route('login') }}"
-                   class="w-full block text-center py-4 bg-primary hover:bg-[#256661] text-white font-black rounded-2xl shadow-xl shadow-primary/30 hover:scale-[1.02] transition text-sm">
-                    Daftar Sekarang
-                </a>
+                @if($canRegister)
+                    <a href="{{ auth()->check() && auth()->user()->role === 'user' ? route('event.register.form', $event->id) : route('login') }}"
+                       class="w-full block text-center py-4 bg-primary hover:bg-[#256661] text-white font-black rounded-2xl shadow-xl shadow-primary/30 hover:scale-[1.02] transition text-sm">
+                        Daftar Sekarang
+                    </a>
+                @else
+                    <button type="button" disabled
+                            class="w-full block text-center py-4 bg-gray-200 text-gray-500 font-black rounded-2xl text-sm cursor-not-allowed">
+                        Pendaftaran Ditutup
+                    </button>
+                    <p class="text-xs text-center text-red-600 font-semibold">{{ $event->registrationClosedReason() }}</p>
+                @endif
 
                 <button onclick="handleShare()"
                         class="w-full flex items-center justify-center gap-2 rounded-xl h-11 bg-gray-100 text-[#131613] text-sm font-bold hover:bg-gray-200 transition-colors">
