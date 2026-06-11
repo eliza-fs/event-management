@@ -20,37 +20,31 @@
             <div>
                 <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Nama Organisasi</label>
                 <input type="text" name="org_name" value="{{ old('org_name', $org->org_name) }}" required
-                       class="w-full rounded-2xl border-gray-200 bg-[#f6f8f6] p-3 outline-none focus:ring-2 focus:ring-[#2F7F79] border @error('org_name') border-red-500 @enderror"/>
-                <x-field-error field="org_name"/>
+                       class="w-full rounded-2xl border-gray-200 bg-[#f6f8f6] p-3 outline-none focus:ring-2 focus:ring-[#2F7F79] border"/>
             </div>
             <div>
                 <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Deskripsi</label>
-                <textarea name="description" rows="3" class="w-full rounded-2xl border-gray-200 bg-[#f6f8f6] p-3 outline-none focus:ring-2 focus:ring-[#2F7F79] border @error('description') border-red-500 @enderror">{{ old('description', $org->description) }}</textarea>
-                <x-field-error field="description"/>
+                <textarea name="description" rows="3" class="w-full rounded-2xl border-gray-200 bg-[#f6f8f6] p-3 outline-none focus:ring-2 focus:ring-[#2F7F79] border">{{ old('description', $org->description) }}</textarea>
             </div>
             <div>
                 <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Email</label>
                 <input type="email" name="email" value="{{ old('email', $org->email) }}"
-                       class="w-full rounded-2xl border-gray-200 bg-[#f6f8f6] p-3 outline-none focus:ring-2 focus:ring-[#2F7F79] border @error('email') border-red-500 @enderror"/>
-                <x-field-error field="email"/>
+                       class="w-full rounded-2xl border-gray-200 bg-[#f6f8f6] p-3 outline-none focus:ring-2 focus:ring-[#2F7F79] border"/>
             </div>
             <div>
                 <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Telepon</label>
-                <input type="text" name="phone" value="{{ old('phone', $org->phone) }}" inputmode="numeric" pattern="\d{11,13}" maxlength="13"
-                       class="w-full rounded-2xl border-gray-200 bg-[#f6f8f6] p-3 outline-none focus:ring-2 focus:ring-[#2F7F79] border @error('phone') border-red-500 @enderror"/>
-                <x-field-error field="phone"/>
+                <input type="text" name="phone" value="{{ old('phone', $org->phone) }}"
+                       class="w-full rounded-2xl border-gray-200 bg-[#f6f8f6] p-3 outline-none focus:ring-2 focus:ring-[#2F7F79] border"/>
             </div>
             <div>
                 <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Alamat</label>
                 <input type="text" name="address" value="{{ old('address', $org->address) }}"
-                       class="w-full rounded-2xl border-gray-200 bg-[#f6f8f6] p-3 outline-none focus:ring-2 focus:ring-[#2F7F79] border @error('address') border-red-500 @enderror"/>
-                <x-field-error field="address"/>
+                       class="w-full rounded-2xl border-gray-200 bg-[#f6f8f6] p-3 outline-none focus:ring-2 focus:ring-[#2F7F79] border"/>
             </div>
             <div>
                 <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Logo / Gambar Organisasi</label>
                 <input type="file" name="image" accept="image/*"
                        class="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-[#2F7F79]/10 file:text-[#2F7F79] file:font-bold"/>
-                <x-field-error field="image"/>
             </div>
             <div class="flex justify-end gap-3 pt-4">
                 <button type="button" onclick="closeModal()" class="px-6 py-3 rounded-2xl border border-gray-200 font-bold text-gray-500 hover:bg-gray-50">Batal</button>
@@ -142,7 +136,6 @@
 <script>
     function openModal() { document.getElementById('editModal').classList.add('show'); }
     function closeModal() { document.getElementById('editModal').classList.remove('show'); }
-    @if($errors->any() || session('success')) openModal(); @endif
     @if(session('success')) alert(@json(session('success'))); @endif
 </script>
 @endpush
