@@ -5,7 +5,7 @@
 <div x-data="{
     showForm: false, editMode: false,
     selectedType: 'All', selectedCategory: 'All', searchQuery: '',
-    formData: { id: null, title: '', description: '', cat: 'Career', type: 'Onsite', quota: 0, registered: 0, price: 0, location: '', start_date: '', end_date: '' },
+    formData: { id: null, title: '', description: '', cat: 'Volunteer', type: 'Onsite', quota: 0, registered: 0, price: 0, location: '', start_date: '', end_date: '' },
     events: @js($eventsJson),
     categoryOptions: @js($categoryOptions),
     typeOptions: @js($eventTypes->pluck('name')),
@@ -20,7 +20,7 @@
     },
     openAddForm() {
         this.editMode = false;
-        this.formData = { id: null, title: '', description: '', cat: this.categoryOptions[0] || 'Career', type: 'Onsite', quota: 10, registered: 0, price: 0, location: '', start_date: '', end_date: '' };
+        this.formData = { id: null, title: '', description: '', cat: this.categoryOptions[0] || 'Volunteer', type: 'Onsite', quota: 10, registered: 0, price: 0, location: '', start_date: '', end_date: '' };
         this.showForm = true;
     },
     openEditForm(event) { this.editMode = true; this.formData = { ...event }; this.showForm = true; },
@@ -31,7 +31,6 @@
             const event = this.events.find(e => String(e.id) === String(editId));
             if (event) this.openEditForm(event);
         }
-        @if($errors->any()) this.showForm = true; @endif
     },
     saveEvent() {
         if (!this.formData.title.trim()) { alert('Judul wajib diisi!'); return; }
@@ -126,15 +125,6 @@
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showForm = false"></div>
         <div class="relative bg-white rounded-[40px] w-full max-w-2xl p-6 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
             <h2 class="text-2xl font-black mb-6" x-text="editMode ? 'Edit Kegiatan' : 'Tambah Kegiatan Baru'"></h2>
-            @if($errors->any())
-                <div class="mb-4 bg-red-50 border border-red-200 rounded-xl p-4">
-                    <ul class="text-red-600 text-sm list-disc list-inside">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
             <form x-ref="eventForm" method="POST" enctype="multipart/form-data"
                   :action="editMode ? '{{ url('/admin/events') }}/' + formData.id : '{{ route('admin.events.store') }}'"
                   class="space-y-6">
