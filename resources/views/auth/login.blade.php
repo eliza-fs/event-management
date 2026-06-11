@@ -27,7 +27,7 @@
              src="https://images.unsplash.com/photo-1559027615-cd762186c6cb?q=80&w=2074&auto=format&fit=crop"/>
         <div class="absolute inset-0 overlay-gradient flex flex-col justify-between p-16 text-white">
             <div class="flex items-center gap-3">
-                <img src="{{ asset(config('volunteerhub.logo_url')) }}" alt="VolunteerHub" class="h-10 w-10 object-contain rounded-lg bg-white/20 p-1"/>
+                <img src="{{ config('volunteerhub.logo_url') }}" alt="VolunteerHub" class="h-10 w-10 object-contain rounded-lg bg-white/20 p-1"/>
                 <span class="text-2xl font-bold tracking-tight">VolunteerHub</span>
             </div>
             <div class="max-w-md">
