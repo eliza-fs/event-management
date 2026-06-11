@@ -7,10 +7,11 @@ use App\Models\EventRegistration;
 use App\Models\Participant;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
+use App\Support\StorageImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use RuntimeException;
 
 class EventRegistrationController extends Controller
@@ -23,7 +24,7 @@ class EventRegistrationController extends Controller
 
         if (! $event->isOpen()) {
             return redirect()->route('event.detail', $event->id)
-                ->with('error', 'Pendaftaran sudah ditutup atau kuota penuh.');
+                ->with('error', $event->registrationClosedReason());
         }
 
         $userParticipants = auth()->user()->participants()->get();
@@ -44,7 +45,7 @@ class EventRegistrationController extends Controller
         $event = Event::findOrFail($eventId);
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
             'email' => 'required|email',
             'phone' => ['required', 'regex:/^\d{10,13}$/'],
             'age' => 'required|integer|min:15|max:70',
@@ -54,20 +55,19 @@ class EventRegistrationController extends Controller
                 : ['required', Rule::exists('payment_methods', 'id')->where('event_id', $event->id)],
             'proof_image' => $event->isFree() ? 'nullable' : 'required|image|mimes:png,jpeg,jpg|max:5120',
         ], [
-            'required' => 'Wajib Diisi',
-            'name.required' => 'Nama lengkap wajib diisi.',
+            'required' => 'Required.',
             'email.email' => 'Format email tidak valid.',
             'phone.regex' => 'Nomor HP harus 10–13 digit angka.',
             'age.integer' => 'Usia harus berupa angka.',
             'age.min' => 'Usia minimal 15 tahun.',
             'age.max' => 'Usia maksimal 70 tahun.',
             'location.regex' => 'Format: Kota, Negara (contoh: Jakarta, Indonesia).',
-            'proof_image.required' => 'Wajib Diisi',
-            'proof_image.max' => 'Ukuran bukti pembayaran tidak boleh melebihi 5120 KB',
         ]);
 
         if (! $event->isOpen()) {
-            return back()->withInput()->with('error', 'Kuota sudah penuh atau pendaftaran ditutup.');
+            throw ValidationException::withMessages([
+                'registration' => [$event->registrationClosedReason()],
+            ]);
         }
 
         try {
@@ -105,12 +105,10 @@ class EventRegistrationController extends Controller
                 ]);
 
                 if (! $event->isFree()) {
-                    $storedPath = $request->file('proof_image')
-                        ->store('payment_proofs', 'public');
-
-                    if (! $storedPath || ! Storage::disk('public')->exists($storedPath)) {
-                        throw new RuntimeException('proof_store_failed');
-                    }
+                    $storedPath = StorageImage::storeUploadedFile(
+                        $request->file('proof_image'),
+                        'payment_proofs'
+                    );
 
                     Payment::create([
                         'event_registration_id' => $registration->id,

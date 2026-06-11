@@ -84,19 +84,9 @@ class AdminPaymentMethodController extends Controller
     {
         return $request->validate([
             'event_id' => 'required|exists:events,id',
-            'method' => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.0-9]+$/u'],
+            'method' => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
             'account_number' => ['required', 'regex:/^\d+$/', 'max:30'],
             'account_owner' => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
-        ], [
-            'required' => 'Wajib Diisi',
-            'event_id.required' => 'Kegiatan wajib dipilih.',
-            'event_id.exists' => 'Kegiatan tidak valid.',
-            'method.required' => 'Metode pembayaran wajib diisi.',
-            'method.regex' => 'Metode pembayaran hanya boleh berisi huruf, angka, spasi, titik, dan tanda hubung.',
-            'account_number.required' => 'Nomor rekening wajib diisi.',
-            'account_number.regex' => 'Nomor rekening hanya boleh berisi angka.',
-            'account_owner.required' => 'Pemilik rekening wajib diisi.',
-            'account_owner.regex' => 'Pemilik rekening hanya boleh berisi huruf, spasi, titik, dan tanda hubung.',
         ]);
     }
 

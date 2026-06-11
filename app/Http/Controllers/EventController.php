@@ -48,6 +48,8 @@ class EventController extends Controller
             'date' => optional($e->start_date)->format('d M Y'),
             'desc' => $e->description ?? '',
             'img' => $e->image_url,
+            'hasImg' => $e->has_stored_image,
+            'registrationOpen' => $e->isOpen(),
         ]);
 
         return view('home', compact(

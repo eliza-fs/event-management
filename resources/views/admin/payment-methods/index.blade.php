@@ -4,13 +4,7 @@
 @section('content')
 <div x-data="{
     showForm: false, editMode: false,
-    formData: {
-        id: null,
-        eventId: @js(old('event_id', '')),
-        method: @js(old('method', '')),
-        accountNumber: @js(old('account_number', '')),
-        accountOwner: @js(old('account_owner', ''))
-    },
+    formData: { id: null, eventId: '', method: '', accountNumber: '', accountOwner: '' },
     methods: @js($methodsJson),
     openAdd() {
         this.editMode = false;
@@ -19,20 +13,15 @@
     },
     openEdit(item) {
         this.editMode = true;
-        this.formData = {
-            id: item.id,
-            eventId: String(item.eventId),
-            method: item.method,
-            accountNumber: item.accountNumber === '-' ? '' : item.accountNumber,
-            accountOwner: item.accountOwner === '-' ? '' : item.accountOwner
-        };
+        this.formData = { id: item.id, eventId: item.eventId, method: item.method, accountNumber: item.accountNumber, accountOwner: item.accountOwner };
         this.showForm = true;
     },
+    saveForm() { this.$refs.methodForm.submit(); },
     deleteMethod(id) {
         if (!confirm('Hapus metode pembayaran ini?')) return;
         document.getElementById('delete-method-' + id)?.submit();
     }
-}" x-init="@if($errors->any()) showForm = true; @endif">
+}">
 
 <main class="max-w-[1200px] mx-auto w-full px-4 md:px-6 py-10">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -41,10 +30,6 @@
             <span class="material-symbols-outlined">add</span> Tambah Metode
         </button>
     </div>
-
-    @if(session('success'))
-        <div class="mb-4 bg-green-50 border border-green-200 rounded-xl p-4 text-green-700 text-sm font-bold">{{ session('success') }}</div>
-    @endif
 
     <div class="bg-white rounded-3xl border border-zinc-100 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
@@ -93,52 +78,38 @@
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showForm = false"></div>
         <div class="relative bg-white rounded-[40px] w-full max-w-lg p-8 shadow-2xl">
             <h2 class="text-2xl font-black mb-6" x-text="editMode ? 'Edit Metode' : 'Tambah Metode'"></h2>
-            @if($errors->any())
-                <div class="mb-4 bg-red-50 border border-red-200 rounded-xl p-4">
-                    <ul class="text-red-600 text-sm list-disc list-inside">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-            <form method="POST"
+            <form x-ref="methodForm" method="POST"
                   :action="editMode ? '{{ url('/admin/payment-methods') }}/' + formData.id : '{{ route('admin.payment-methods.store') }}'"
                   class="space-y-4">
                 @csrf
                 <template x-if="editMode"><input type="hidden" name="_method" value="PUT"></template>
                 <div>
                     <label class="text-sm font-bold">Kegiatan</label>
-                    <select name="event_id" x-model="formData.eventId" required
-                            class="w-full rounded-2xl border p-3 mt-1 @error('event_id') border-red-500 @enderror">
+                    <select name="event_id" x-model="formData.eventId" required class="w-full rounded-2xl border p-3 mt-1">
                         <option value="">Pilih kegiatan berbayar</option>
                         @foreach($events as $event)
                             <option value="{{ $event->id }}">{{ $event->title }}</option>
                         @endforeach
                     </select>
-                    @error('event_id')<p class="text-red-600 text-xs mt-1 font-semibold">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="text-sm font-bold">Metode</label>
                     <input type="text" name="method" x-model="formData.method" required placeholder="BCA, GoPay, dll"
-                           class="w-full rounded-2xl border p-3 mt-1 @error('method') border-red-500 @enderror"/>
-                    @error('method')<p class="text-red-600 text-xs mt-1 font-semibold">{{ $message }}</p>@enderror
+                           class="w-full rounded-2xl border p-3 mt-1"/>
                 </div>
                 <div>
                     <label class="text-sm font-bold">Nomor Rekening / Akun</label>
-                    <input type="text" name="account_number" x-model="formData.accountNumber" required inputmode="numeric" pattern="\d+"
-                           class="w-full rounded-2xl border p-3 mt-1 @error('account_number') border-red-500 @enderror"/>
-                    @error('account_number')<p class="text-red-600 text-xs mt-1 font-semibold">{{ $message }}</p>@enderror
+                    <input type="text" name="account_number" x-model="formData.accountNumber" required
+                           class="w-full rounded-2xl border p-3 mt-1"/>
                 </div>
                 <div>
                     <label class="text-sm font-bold">Pemilik Rekening</label>
                     <input type="text" name="account_owner" x-model="formData.accountOwner" required
-                           class="w-full rounded-2xl border p-3 mt-1 @error('account_owner') border-red-500 @enderror"/>
-                    @error('account_owner')<p class="text-red-600 text-xs mt-1 font-semibold">{{ $message }}</p>@enderror
+                           class="w-full rounded-2xl border p-3 mt-1"/>
                 </div>
                 <div class="flex gap-3 pt-4">
                     <button type="button" @click="showForm = false" class="flex-1 py-3 bg-slate-100 rounded-2xl font-black">Batal</button>
-                    <button type="submit" class="flex-1 py-3 bg-[#2F7F79] text-white rounded-2xl font-black">Simpan</button>
+                    <button type="button" @click="saveForm()" class="flex-1 py-3 bg-[#2F7F79] text-white rounded-2xl font-black">Simpan</button>
                 </div>
             </form>
         </div>

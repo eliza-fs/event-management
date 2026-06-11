@@ -8,7 +8,7 @@ use App\Models\Event;
 use App\Models\EventCategory;
 use App\Models\EventType;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use App\Support\StorageImage;
 
 class AdminEventController extends Controller
 {
@@ -53,11 +53,11 @@ class AdminEventController extends Controller
             ->get();
 
         $categories = EventCategory::orderBy('group_type')->orderBy('name')->get();
+        $categoryOptions = $this->adminCategoryOptions($categories);
         $eventTypes = EventType::orderBy('name')->get();
         $eventsJson = $events->map(fn ($e) => $this->toAlpineManageEvent($e));
-        $categoryOptions = $categories->pluck('name')->unique()->values();
 
-        return view('admin.events.index', compact('events', 'categories', 'eventTypes', 'org', 'eventsJson', 'categoryOptions'));
+        return view('admin.events.index', compact('events', 'categories', 'categoryOptions', 'eventTypes', 'org', 'eventsJson'));
     }
 
     public function store(Request $request)
@@ -70,9 +70,10 @@ class AdminEventController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $storedPath = $request->file('image')->store('events', 'public');
-            if ($storedPath && Storage::disk('public')->exists($storedPath)) {
-                $imagePath = $storedPath;
+            try {
+                $imagePath = StorageImage::storeUploadedFile($request->file('image'), 'events');
+            } catch (\RuntimeException) {
+                return back()->withInput()->with('error', 'Gagal menyimpan gambar event.');
             }
         }
 
@@ -117,18 +118,12 @@ class AdminEventController extends Controller
         ];
 
         if ($request->hasFile('image')) {
-            $storedPath = $request->file('image')->store('events', 'public');
-
-            if (! $storedPath || ! Storage::disk('public')->exists($storedPath)) {
+            try {
+                $payload['image'] = StorageImage::storeUploadedFile($request->file('image'), 'events');
+                StorageImage::delete($event->image);
+            } catch (\RuntimeException) {
                 return back()->withInput()->with('error', 'Gagal menyimpan gambar event.');
             }
-
-            $old = \App\Support\StorageImage::normalize($event->image);
-            if ($old && Storage::disk('public')->exists($old)) {
-                Storage::disk('public')->delete($old);
-            }
-
-            $payload['image'] = $storedPath;
         }
 
         $event->update($payload);
@@ -170,20 +165,6 @@ class AdminEventController extends Controller
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after:start_date',
             'image' => 'nullable|image|max:5120',
-        ], [
-            'required' => 'Wajib Diisi',
-            'title.required' => 'Judul kegiatan wajib diisi.',
-            'cat.required' => 'Kategori wajib dipilih.',
-            'type.required' => 'Tipe pelaksanaan wajib dipilih.',
-            'quota.required' => 'Kuota peserta wajib diisi.',
-            'quota.integer' => 'Kuota harus berupa angka.',
-            'quota.min' => 'Kuota tidak boleh kurang dari jumlah peserta terdaftar.',
-            'price.numeric' => 'Biaya harus berupa angka.',
-            'price.min' => 'Biaya tidak boleh negatif.',
-            'location.regex' => 'Format lokasi: Kota, Negara (contoh: Jakarta, Indonesia).',
-            'end_date.after' => 'Tanggal selesai harus setelah tanggal mulai.',
-            'image.image' => 'File harus berupa gambar.',
-            'image.max' => 'Ukuran gambar tidak boleh melebihi 5120 KB.',
         ]);
 
         $validated['start_date'] = $validated['start_date'] ?? now()->addDays(7)->format('Y-m-d H:i:s');
@@ -192,10 +173,22 @@ class AdminEventController extends Controller
         return $validated;
     }
 
+    private function adminCategoryOptions($categories): array
+    {
+        $preferredOrder = ['Career', 'Creative', 'Hard Skill', 'Soft Skill', 'Volunteer', 'Community'];
+
+        return $categories
+            ->sortBy(fn ($c) => ($i = array_search($c->name, $preferredOrder, true)) !== false ? $i : 999)
+            ->pluck('name')
+            ->values()
+            ->all();
+    }
+
     private function resolveCategory(string $cat): EventCategory
     {
-        return EventCategory::where('name', $cat)->first()
-            ?? EventCategory::where('group_type', $cat)->firstOrFail();
+        return EventCategory::where('name', $cat)
+            ->orWhere('group_type', $cat)
+            ->firstOrFail();
     }
 
     private function resolveEventType(string $type): EventType
@@ -226,7 +219,7 @@ class AdminEventController extends Controller
         return [
             'id' => $e->id,
             'title' => $e->title,
-            'cat' => $e->category->name ?? $e->category->group_type ?? 'Volunteer',
+            'cat' => $e->category->name ?? 'Volunteer',
             'type' => $e->eventType->name ?? 'Onsite',
             'description' => $e->description ?? '',
             'registered' => $approved,

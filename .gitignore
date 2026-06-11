@@ -18,13 +18,7 @@
 /public/storage
 /storage/*.key
 /storage/pail
-/storage/logs/*
-/storage/framework/cache/*
-/storage/framework/sessions/*
-/storage/framework/views/*
 /vendor
 Homestead.json
 Homestead.yaml
 Thumbs.db
-/bootstrap/cache/*.php
-docker/mysql-data

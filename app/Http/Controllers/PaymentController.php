@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Payment;
+use App\Support\StorageImage;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
@@ -45,8 +46,7 @@ class PaymentController extends Controller
             $q->where('user_id', auth()->id());
         })->findOrFail($paymentId);
 
-        $path = $request->file('proof_image')
-            ->store('payment_proofs', 'public');
+        $path = StorageImage::storeUploadedFile($request->file('proof_image'), 'payment_proofs');
 
         $payment->update([
             'proof_image' => $path,
