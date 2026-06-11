@@ -26,7 +26,11 @@
              src="https://images.unsplash.com/photo-1559027615-cd762186c6cb?q=80&w=2074&auto=format&fit=crop"/>
         <div class="absolute inset-0 overlay-gradient flex flex-col justify-between p-16 text-white">
             <div class="flex items-center gap-3">
-                <img src="{{ asset(config('volunteerhub.logo_url')) }}" alt="VolunteerHub" class="h-10 w-10 object-contain rounded-lg bg-white/20 p-1"/>
+                <div class="size-10 bg-white rounded-lg flex items-center justify-center text-primary shadow-lg">
+                    <svg class="size-8" fill="currentColor" viewBox="0 0 48 48">
+                        <path d="M13.8261 30.5736C16.7203 29.8826 20.2244 29.4783 24 29.4783C27.7756 29.4783 31.2797 29.8826 34.1739 30.5736C36.9144 31.2278 39.9967 32.7669 41.3563 33.8352L24.8486 7.36089C24.4571 6.73303 23.5429 6.73303 23.1514 7.36089L6.64374 33.8352C8.00331 32.7669 11.0856 31.2278 13.8261 30.5736Z"></path>
+                    </svg>
+                </div>
                 <span class="text-2xl font-bold tracking-tight">VolunteerHub</span>
             </div>
             <div class="max-w-md">
