@@ -2,9 +2,8 @@
     <div class="max-w-[1200px] mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
         <p>© 2026 VolunteerHub Admin Console.</p>
         <div class="flex flex-wrap gap-4 md:gap-6 font-bold justify-center">
-            <a class="hover:text-[#2F7F79] transition-colors" href="{{ route('terms') }}#privacy">Kebijakan Privasi</a>
-            <a class="hover:text-[#2F7F79] transition-colors" href="{{ route('terms') }}#terms">Ketentuan Layanan</a>
-            <a class="hover:text-[#2F7F79] transition-colors" href="{{ route('terms') }}#contact">Kontak Kami</a>
+            <a class="hover:text-[#2F7F79] transition-colors" href="{{ route('terms') }}#privacy">Privacy Policy</a>
+            <a class="hover:text-[#2F7F79] transition-colors" href="{{ route('terms') }}">Help Center</a>
         </div>
     </div>
 </footer>
